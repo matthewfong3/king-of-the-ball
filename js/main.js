@@ -76,7 +76,7 @@ app.main = {
         };
         
         this.move = function(dt){
-            var maxSpeed, jumpSpeed = 80;
+            var maxSpeed, jumpSpeed = 130;
             if(this.ballState === app.main.PLAYER_BALL_STATE.DEFAULT) maxSpeed = 100;
             else if(this.ballState === app.main.PLAYER_BALL_STATE.ONBALL) maxSpeed = 90;
             
@@ -94,17 +94,17 @@ app.main = {
             }
             if(this.playerState === 1){ // 1 = JUMPING
                 this.jumpCounter++;
-                this.y -= jumpSpeed * dt;
+                this.y -= jumpSpeed * dt * 1.5;
                 this.jumpBool = true;
                 
-                if(this.jumpCounter >= 80){
+                if(this.jumpCounter >= 35){
                     this.jumpCounter = 0;
                     this.playerState = app.main.PLAYER_STATE.FALLING;
                     
                 }
             }
             if(this.playerState === 0){ // 0  = FALLING
-                this.y += jumpSpeed * dt;
+                this.y += jumpSpeed * dt * 2;
             }
             if(this.playerState === 2){ // 2 = GROUNDED
                 // do nothing!
