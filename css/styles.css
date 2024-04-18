@@ -1,0 +1,59 @@
+/* Font Reference: http://www.underware.nl/fonts/unibody/download/ */
+@font-face{
+    font-family: pixelFont;
+    src: url(../font/Unibody8Pro-Regular.otf);
+}
+
+body{
+    background-color: black;
+    font-family: pixelFont;
+    margin: auto;
+    width: 50%;
+}
+
+#canvas{
+    z-index: 0;
+    box-shadow: 5px 5px 10px #222;
+}
+
+#buttons{
+    position: absolute;
+    z-index: 1;
+    top: 160px;
+}
+
+#start, 
+#restart, 
+#controls{
+    margin: auto;
+    padding-left: 18.75em;
+    padding-bottom: 1em;
+}
+
+#restart{
+    position: absolute;
+    top: 200px;
+}
+
+#levels{
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    top: 125px;
+}
+
+#lvl1, 
+#lvl2, 
+#lvl3{
+    padding: 3.5em;
+}
+
+#instructions{
+    background-color: black;
+    width: 800px;
+    color: white;
+}
+
+#audioControls{
+    display: none;
+}
