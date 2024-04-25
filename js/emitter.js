@@ -28,16 +28,16 @@ app.Emitter=function(){
 	
 	
 	// "public" methods
-	var p=Emitter.prototype;
+	var p = Emitter.prototype;
 	
 	p.createParticles = function(emitterPoint){
 		// initialize particle array
 		this._particles = [];
 				
 		// create exhaust particles
-		for(var i=0; i< this.numParticles; i++){
+		for(let i = 0; i < this.numParticles; i++){
 			// create a particle object and add to array
-			var p = {};
+			let p = {};
 			this._particles.push(_initParticle(this, p, emitterPoint));
 		}
 	};
@@ -49,14 +49,14 @@ app.Emitter=function(){
 			// make it bigger, and fade it out
 			// increase its age so we know when to recycle it
 			
-			for(var i=0;i<this._particles.length;i++){
-				var p = this._particles[i];
+			for(let i = 0; i < this._particles.length; i++){
+				let p = this._particles[i];
 							
 				p.age += this.decayRate;
 				p.r += this.expansionRate;
 				p.x += p.xSpeed
 				p.y += p.ySpeed
-				var alpha = 1 - p.age/this.lifetime;
+				let alpha = 1 - p.age/this.lifetime;
 				
 				if(this.useSquares){
 					// fill a rectangle	
@@ -86,7 +86,6 @@ app.Emitter=function(){
 			
 	// "private" method
 	function _initParticle(obj, p, emitterPoint){
-		
 		// give it a random age when first created
 		p.age = getRandom(0,obj.lifetime);
 				
@@ -97,7 +96,6 @@ app.Emitter=function(){
 		p.ySpeed = getRandom(obj.minYspeed, obj.maxYspeed);
 		return p;
 	};
-	
 	
 	return Emitter;
 }();

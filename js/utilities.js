@@ -9,7 +9,7 @@ function clamp(val, min, max){
 }
 
 function calculateDeltaTime(){
-	var now,fps;
+	let now,fps;
 	now = performance.now(); 
 	fps = 1000 / (now - app.main.lastTime);
 	fps = clamp(fps, 12, 60);

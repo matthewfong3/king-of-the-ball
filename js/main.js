@@ -42,7 +42,7 @@ app.main = {
     // player object
     p1: undefined,
     p2: undefined,
-    Player: function(t, w, h){
+    Player: function(t, w, h){ // function constructor
         // player properties
         this.team = t;
         this.x = undefined;
@@ -76,9 +76,9 @@ app.main = {
         };
         
         this.move = function(dt){
-            var maxSpeed, jumpSpeed = 130;
-            if(this.ballState === app.main.PLAYER_BALL_STATE.DEFAULT) maxSpeed = 100;
-            else if(this.ballState === app.main.PLAYER_BALL_STATE.ONBALL) maxSpeed = 90;
+            let maxSpeed, jumpSpeed = 120;
+            if(this.ballState === app.main.PLAYER_BALL_STATE.DEFAULT) maxSpeed = 120;
+            else if(this.ballState === app.main.PLAYER_BALL_STATE.ONBALL) maxSpeed = 100;
             
             if(this.playerDirection == 0){ // 0 = IDLE
                 // do nothing!
@@ -94,17 +94,17 @@ app.main = {
             }
             if(this.playerState === 1){ // 1 = JUMPING
                 this.jumpCounter++;
-                this.y -= jumpSpeed * dt * 1.5;
+                this.y -= jumpSpeed * dt * 1.8;
                 this.jumpBool = true;
                 
-                if(this.jumpCounter >= 35){
+                if(this.jumpCounter >= 30){
                     this.jumpCounter = 0;
                     this.playerState = app.main.PLAYER_STATE.FALLING;
                     
                 }
             }
             if(this.playerState === 0){ // 0  = FALLING
-                this.y += jumpSpeed * dt * 2;
+                this.y += jumpSpeed * dt * 1.8;
             }
             if(this.playerState === 2){ // 2 = GROUNDED
                 // do nothing!
@@ -113,8 +113,8 @@ app.main = {
          };
         
         this.updateFrameAnimation = function(tPF, nF){
-            var ticksPerFrame = tPF;
-            var numFrames = nF;
+            let ticksPerFrame = tPF;
+            let numFrames = nF;
             
             this.tickCount++;
             if(this.tickCount > ticksPerFrame){
@@ -198,7 +198,7 @@ app.main = {
         JUMPING: 1,
         GROUNDED: 2
     }),
-    // player enum for either on ball or off ball
+    // player enum for either on-ball or off-ball
     PLAYER_BALL_STATE: Object.freeze({
         DEFAULT: 0,
         ONBALL: 1
@@ -219,7 +219,7 @@ app.main = {
             this.r = 7.5;
             this.active = false;
             
-            var pulsar = new app.main.Emitter();
+            let pulsar = new app.main.Emitter();
             pulsar.red = 255;
             pulsar.green = 255;
             pulsar.blue = 255;
@@ -263,9 +263,9 @@ app.main = {
         }
     },
     
-    // platform object
+    // platforms array
     platforms: [],
-    Platform: function(x, y, w, h){
+    Platform: function(x, y, w, h){ // function constructor
         // platform properties
         this.x = x;
         this.y = y;
@@ -280,9 +280,7 @@ app.main = {
     },
     
     /// ------------------------ functions ------------------------
-    /// summary
-    /// init function
-    /// summary
+    // init function
     init: function(){
         //initialize properties
         this.canvas = document.querySelector('canvas');
@@ -293,7 +291,21 @@ app.main = {
         this.gameState = this.GAME_STATE.BEGIN; 
         this.currentState = this.gameState;
 
-        this.ball.spawn(this.canvas.width/2, this.canvas.height/2 + 40); // spawn ball
+        // initialize sound variables & set volumes
+        this.bgAudio = document.querySelector("#bgAudio");
+        this.bgAudio.volume = 0.01;
+        this.punchAudio = document.querySelector("#punchAudio");
+        this.punchAudio.src = "sounds/" + this.effectSounds[1];
+        this.punchAudio.volume = 0.01;
+        this.ballAudio = document.querySelector("#ballAudio");
+        this.ballAudio.src = "sounds/" + this.effectSounds[2];
+        this.ballAudio.volume = 0.01;
+
+        // set up UI buttons for the game
+        setupUI();
+
+        // spawn ball
+        this.ball.spawn(this.canvas.width/2, this.canvas.height/2 + 40); 
         
         // initialize players
         this.p1 = new this.Player("red", 30, 35);
@@ -306,30 +318,19 @@ app.main = {
         this.p2.imageRUN.src = app.IMAGES["blueCharRUN"];
         this.p2.imageACTION.src = app.IMAGES["blueCharACTION"];
         
-        // initialize sound variables & set volumes
-        this.bgAudio = document.querySelector("#bgAudio");
-        this.bgAudio.volume = 0.01;
-        this.punchAudio = document.querySelector("#punchAudio");
-        this.punchAudio.src = "sounds/" + this.effectSounds[1];
-        this.punchAudio.volume = 0.01;
-        this.ballAudio = document.querySelector("#ballAudio");
-        this.ballAudio.src = "sounds/" + this.effectSounds[2];
-        this.ballAudio.volume = 0.01;
-        
         // start game loop
         this.update();
     },
-    
-    /// summary
-    /// update/game loop function
-    /// summary
+  
+    // update/game loop function
     update: function(){
         // Loop
         this.animationID = requestAnimationFrame(this.update.bind(this));
         
         // Draw
         this.ctx.drawImage(this.imageBG, 0, 0);
-        // draw borders
+
+        // draw canvas borders
         this.ctx.fillStyle = "black";
         this.ctx.fillRect(0, 0, 3, this.canvas.height);
         this.ctx.fillRect(this.canvas.width - 3, 0, 3, this.canvas.height);
@@ -337,9 +338,9 @@ app.main = {
         
         if(this.gameState === this.GAME_STATE.DEFAULT){
             this.bgAudio.play();
-            var dt = calculateDeltaTime();
+            let dt = calculateDeltaTime();
             
-            for(var i = 0; i < this.platforms.length; i++)
+            for(let i = 0; i < this.platforms.length; i++)
                 this.platforms[i].draw(this.ctx); // draw platforms
             
             // update players
@@ -366,49 +367,44 @@ app.main = {
         this.drawHUD(this.ctx); // Draw HUD
     },
     
-    /// summary
-    /// make platforms for level
-    /// summary
-    makePlatforms(int){
-        var platform1;
-        var platform2;
-        var platform3;
-        var platform4;
-        var platform5;
-        var platform6;
-        var platform7;
-        var platform8;
+    // make platforms for levels
+    makePlatforms: function(int){
+        let platform1, platform2, platform3, platform4, platform5, platform6, platform7, platform8;
         this.platforms = []; // empty platforms array
-        if(int == 1){ // level 1
-            platform1 = new this.Platform(this.canvas.width/5, 150, this.canvas.width/5, 5);
-            platform2 = new this.Platform(3*this.canvas.width/5, 150, this.canvas.width/5, 5);
-            platform3 = new this.Platform(this.canvas.width/16, 250, this.canvas.width/6, 5);
-            platform4 = new this.Platform(12*this.canvas.width/16, 250, this.canvas.width/6, 5);
-            platform5 = new this.Platform(this.canvas.width/4, 350, this.canvas.width/2, 5);
-            platform6 = new this.Platform(this.canvas.width/8, 450, this.canvas.width/6, 5);
-            platform7 = new this.Platform(5.5*this.canvas.width/8, 450, this.canvas.width/6, 5);
-            platform8 = new this.Platform(this.canvas.width/3, 550, this.canvas.width/3, 5);
+
+        switch(int){
+            case 1: // level 1
+                platform1 = new this.Platform(this.canvas.width/5, 150, this.canvas.width/5, 5);
+                platform2 = new this.Platform(3*this.canvas.width/5, 150, this.canvas.width/5, 5);
+                platform3 = new this.Platform(this.canvas.width/16, 250, this.canvas.width/6, 5);
+                platform4 = new this.Platform(12*this.canvas.width/16, 250, this.canvas.width/6, 5);
+                platform5 = new this.Platform(this.canvas.width/4, 350, this.canvas.width/2, 5);
+                platform6 = new this.Platform(this.canvas.width/8, 450, this.canvas.width/6, 5);
+                platform7 = new this.Platform(5.5*this.canvas.width/8, 450, this.canvas.width/6, 5);
+                platform8 = new this.Platform(this.canvas.width/3, 550, this.canvas.width/3, 5);
+                break;
+            case 2: // level 2
+                platform1 = new this.Platform(3*this.canvas.width/8, 150, this.canvas.width/4, 5);
+                platform2 = new this.Platform(3*this.canvas.width/16, 250, this.canvas.width/4, 5);
+                platform3 = new this.Platform(9*this.canvas.width/16, 250, this.canvas.width/4, 5);
+                platform4 = new this.Platform(this.canvas.width/16, 350, this.canvas.width/8, 5);
+                platform5 = new this.Platform(6*this.canvas.width/16, 350, 2*this.canvas.width/8, 5);
+                platform6 = new this.Platform(13*this.canvas.width/16, 350, this.canvas.width/8, 5);
+                platform7 = new this.Platform(this.canvas.width/8, 450, this.canvas.width/4, 5);
+                platform8 = new this.Platform(5*this.canvas.width/8, 450, this.canvas.width/4, 5);
+                break;
+            case 3: // level 3
+                platform1 = new this.Platform(2*this.canvas.width/16, 150, this.canvas.width/8, 5);
+                platform2 = new this.Platform(12*this.canvas.width/16, 150, this.canvas.width/8, 5);
+                platform3 = new this.Platform(1.75*this.canvas.width/8, 250, this.canvas.width/6, 5);
+                platform4 = new this.Platform(5*this.canvas.width/8, 250, this.canvas.width/6, 5);
+                platform5 = new this.Platform(6*this.canvas.width/16, 350, this.canvas.width/4, 5);
+                platform6 = new this.Platform(this.canvas.width/4, 450, this.canvas.width/2, 5);
+                platform7 = new this.Platform(this.canvas.width/16, 550, this.canvas.width/8, 5);
+                platform8 = new this.Platform(13*this.canvas.width/16, 550, this.canvas.width/8, 5);
+                break;
         }
-        else if(int == 2){ // level 2
-            platform1 = new this.Platform(3*this.canvas.width/8, 150, this.canvas.width/4, 5);
-            platform2 = new this.Platform(3*this.canvas.width/16, 250, this.canvas.width/4, 5);
-            platform3 = new this.Platform(9*this.canvas.width/16, 250, this.canvas.width/4, 5);
-            platform4 = new this.Platform(this.canvas.width/16, 350, this.canvas.width/8, 5);
-            platform5 = new this.Platform(6*this.canvas.width/16, 350, 2*this.canvas.width/8, 5);
-            platform6 = new this.Platform(13*this.canvas.width/16, 350, this.canvas.width/8, 5);
-            platform7 = new this.Platform(this.canvas.width/8, 450, this.canvas.width/4, 5);
-            platform8 = new this.Platform(5*this.canvas.width/8, 450, this.canvas.width/4, 5);
-        }
-        else if(int == 3){ // level 3
-            platform1 = new this.Platform(2*this.canvas.width/16, 150, this.canvas.width/8, 5);
-            platform2 = new this.Platform(12*this.canvas.width/16, 150, this.canvas.width/8, 5);
-            platform3 = new this.Platform(1.75*this.canvas.width/8, 250, this.canvas.width/6, 5);
-            platform4 = new this.Platform(5*this.canvas.width/8, 250, this.canvas.width/6, 5);
-            platform5 = new this.Platform(6*this.canvas.width/16, 350, this.canvas.width/4, 5);
-            platform6 = new this.Platform(this.canvas.width/4, 450, this.canvas.width/2, 5);
-            platform7 = new this.Platform(this.canvas.width/16, 550, this.canvas.width/8, 5);
-            platform8 = new this.Platform(13*this.canvas.width/16, 550, this.canvas.width/8, 5);
-        }
+
         this.platforms.push(platform1);
         this.platforms.push(platform2);
         this.platforms.push(platform3);
@@ -418,15 +414,46 @@ app.main = {
         this.platforms.push(platform7);
         this.platforms.push(platform8);
     },
+
+    // initialize levels
+    initLevel: function(int){
+        switch(int){
+            case 1:
+                app.main.makePlatforms(int);
+                app.main.p1.spawnX = app.main.canvas.width/4;
+                app.main.p1.spawnY = app.main.canvas.height/2 + 15;
+                app.main.p1.spawn(app.main.p1.spawnX, app.main.p1.spawnY, app.main.PLAYER_DIRECTION_STATE.IDLE, app.main.PLAYER_STATE.GROUNDED, app.main.PLAYER_BALL_STATE.DEFAULT);
+                app.main.p2.spawnX = app.main.canvas.width/4 + app.main.canvas.width/2 - 30;
+                app.main.p2.spawnY = app.main.canvas.height/2 + 15;
+                app.main.p2.spawn(app.main.p2.spawnX, app.main.p2.spawnY, app.main.PLAYER_DIRECTION_STATE.IDLE, app.main.PLAYER_STATE.GROUNDED, app.main.PLAYER_BALL_STATE.DEFAULT);
+                break;
+            case 2:
+                app.main.makePlatforms(2);
+                app.main.p1.spawnX = app.main.canvas.width/4 - 130;
+                app.main.p1.spawnY = app.main.canvas.height/2 + 15;
+                app.main.p1.spawn(app.main.p1.spawnX, app.main.p1.spawnY, app.main.PLAYER_DIRECTION_STATE.IDLE, app.main.PLAYER_STATE.GROUNDED, app.main.PLAYER_BALL_STATE.DEFAULT);
+                app.main.p2.spawnX = app.main.canvas.width/4 + app.main.canvas.width/2 + 100;
+                app.main.p2.spawnY = app.main.canvas.height/2 + 15;
+                app.main.p2.spawn(app.main.p2.spawnX, app.main.p2.spawnY, app.main.PLAYER_DIRECTION_STATE.IDLE, app.main.PLAYER_STATE.GROUNDED, app.main.PLAYER_BALL_STATE.DEFAULT);
+                break;
+            case 3:
+                app.main.makePlatforms(3);
+                app.main.p1.spawnX = app.main.canvas.width/4 - 95;
+                app.main.p1.spawnY = 150;
+                app.main.p1.spawn(app.main.p1.spawnX, app.main.p1.spawnY, app.main.PLAYER_DIRECTION_STATE.IDLE, app.main.PLAYER_STATE.GROUNDED, app.main.PLAYER_BALL_STATE.DEFAULT);
+                app.main.p2.spawnX = app.main.canvas.width/4 + app.main.canvas.width/2 + 65;
+                app.main.p2.spawnY = 150;
+                app.main.p2.spawn(app.main.p2.spawnX, app.main.p2.spawnY, app.main.PLAYER_DIRECTION_STATE.IDLE, app.main.PLAYER_STATE.GROUNDED, app.main.PLAYER_BALL_STATE.DEFAULT);
+                break;
+        }
+    },
     
-    /// summary
-    /// draws HUD
-    /// summary
+    // draws HUD
     drawHUD: function(ctx){
-        var startButton = document.querySelector("#start");
-        var controlsButton = document.querySelector("#controls");
-        var restartButton = document.querySelector("#restart");
-        var levels = document.querySelector("#levels");
+        let startButton = document.querySelector("#start");
+        let controlsButton = document.querySelector("#controls");
+        let restartButton = document.querySelector("#restart");
+        let levels = document.querySelector("#levels");
         
         this.ctx.save();
         if(this.gameState === this.GAME_STATE.BEGIN){
@@ -458,40 +485,23 @@ app.main = {
             controlsButton.style.display = "none";
             restartButton.style.display ="none";
             levels.style.display = "inline";
-            var lvl1 = document.querySelector("#lvl1");
-            var lvl2 = document.querySelector("#lvl2");
-            var lvl3 = document.querySelector("#lvl3");
+            let lvl1 = document.querySelector("#lvl1");
+            let lvl2 = document.querySelector("#lvl2");
+            let lvl3 = document.querySelector("#lvl3");
             
             lvl1.onclick = function(){
                 app.main.gameState = app.main.GAME_STATE.DEFAULT;
-                app.main.makePlatforms(1);
-                app.main.p1.spawnX = app.main.canvas.width/4;
-                app.main.p1.spawnY = app.main.canvas.height/2 + 15;
-                app.main.p1.spawn(app.main.p1.spawnX, app.main.p1.spawnY, app.main.PLAYER_DIRECTION_STATE.IDLE, app.main.PLAYER_STATE.GROUNDED, app.main.PLAYER_BALL_STATE.DEFAULT);
-                app.main.p2.spawnX = app.main.canvas.width/4 + app.main.canvas.width/2 - 30;
-                app.main.p2.spawnY = app.main.canvas.height/2 + 15;
-                app.main.p2.spawn(app.main.p2.spawnX, app.main.p2.spawnY, app.main.PLAYER_DIRECTION_STATE.IDLE, app.main.PLAYER_STATE.GROUNDED, app.main.PLAYER_BALL_STATE.DEFAULT);
+                app.main.initLevel(1);
             };
             lvl2.onclick = function(){
                 app.main.gameState = app.main.GAME_STATE.DEFAULT;
-                app.main.makePlatforms(2);
-                app.main.p1.spawnX = app.main.canvas.width/4 - 130;
-                app.main.p1.spawnY = app.main.canvas.height/2 + 15;
-                app.main.p1.spawn(app.main.p1.spawnX, app.main.p1.spawnY, app.main.PLAYER_DIRECTION_STATE.IDLE, app.main.PLAYER_STATE.GROUNDED, app.main.PLAYER_BALL_STATE.DEFAULT);
-                app.main.p2.spawnX = app.main.canvas.width/4 + app.main.canvas.width/2 + 100;
-                app.main.p2.spawnY = app.main.canvas.height/2 + 15;
-                app.main.p2.spawn(app.main.p2.spawnX, app.main.p2.spawnY, app.main.PLAYER_DIRECTION_STATE.IDLE, app.main.PLAYER_STATE.GROUNDED, app.main.PLAYER_BALL_STATE.DEFAULT);
+                app.main.initLevel(2);
             };
             lvl3.onclick = function(){
                 app.main.gameState = app.main.GAME_STATE.DEFAULT;
-                app.main.makePlatforms(3);
-                app.main.p1.spawnX = app.main.canvas.width/4 - 95;
-                app.main.p1.spawnY = 150;
-                app.main.p1.spawn(app.main.p1.spawnX, app.main.p1.spawnY, app.main.PLAYER_DIRECTION_STATE.IDLE, app.main.PLAYER_STATE.GROUNDED, app.main.PLAYER_BALL_STATE.DEFAULT);
-                app.main.p2.spawnX = app.main.canvas.width/4 + app.main.canvas.width/2 + 65;
-                app.main.p2.spawnY = 150;
-                app.main.p2.spawn(app.main.p2.spawnX, app.main.p2.spawnY, app.main.PLAYER_DIRECTION_STATE.IDLE, app.main.PLAYER_STATE.GROUNDED, app.main.PLAYER_BALL_STATE.DEFAULT);
+                app.main.initLevel(3);
             };
+            
             this.ctx.font = "18pt pixelFont";
             this.ctx.fillStyle = "white";
             this.ctx.textAlign = "center";
@@ -541,42 +551,38 @@ app.main = {
         this.ctx.restore();
     },
     
-    /// summary
-    /// handle player input
-    /// summary
+    // handle player input
     handleInput: function(){
         // Player 1 Key Controls
-        if(this.myKeys.keydown[this.myKeys.KEYBOARD.D])
+        if(this.myKeys.keydown["d"])
             this.p1.playerDirection = this.PLAYER_DIRECTION_STATE.RIGHT;
-        else if(this.myKeys.keydown[this.myKeys.KEYBOARD.A]) 
+        else if(this.myKeys.keydown["a"]) 
             this.p1.playerDirection = this.PLAYER_DIRECTION_STATE.LEFT;
-        else if(!this.myKeys.keydown[this.myKeys.KEYBOARD.D] && !this.myKeys.keydown[this.myKeys.KEYBOARD.A])
+        else if(!this.myKeys.keydown["d"] && !this.myKeys.keydown["a"])
             this.p1.playerDirection = this.PLAYER_DIRECTION_STATE.IDLE;
-        if(this.myKeys.keydown[this.myKeys.KEYBOARD.W] && !this.p1.jumpBool) 
+        if(this.myKeys.keydown["w"] && !this.p1.jumpBool) 
             this.p1.playerState = this.PLAYER_STATE.JUMPING;
         
         // Allows Player 1 to interact
-        if(this.myKeys.keydown[this.myKeys.KEYBOARD.G]) this.p1.interactBool = true;
+        if(this.myKeys.keydown["g"]) this.p1.interactBool = true;
         else  this.p1.interactBool = false;
         
         // Player 2 Key Controls
-        if(this.myKeys.keydown[this.myKeys.KEYBOARD.KEY_LEFT])
+        if(this.myKeys.keydown["arrowleft"])
             this.p2.playerDirection = this.PLAYER_DIRECTION_STATE.LEFT;
-        else if(this.myKeys.keydown[this.myKeys.KEYBOARD.KEY_RIGHT])
+        else if(this.myKeys.keydown["arrowright"])
             this.p2.playerDirection = this.PLAYER_DIRECTION_STATE.RIGHT;
-        else if(!this.myKeys.keydown[this.myKeys.KEYBOARD.KEY_LEFT] && !this.myKeys.keydown[this.myKeys.KEYBOARD.KEY_RIGHT])
+        else if(!this.myKeys.keydown["arrowleft"] && !this.myKeys.keydown["arrowright"])
             this.p2.playerDirection = this.PLAYER_DIRECTION_STATE.IDLE;
-        if(this.myKeys.keydown[this.myKeys.KEYBOARD.KEY_UP] && !this.p2.jumpBool)
+        if(this.myKeys.keydown["arrowup"] && !this.p2.jumpBool)
             this.p2.playerState = this.PLAYER_STATE.JUMPING;
         
         // Allows Player 2 to interact
-        if(this.myKeys.keydown[this.myKeys.KEYBOARD.NUMPAD_0] || this.myKeys.keydown[this.myKeys.KEYBOARD.L]) this.p2.interactBool = true;
+        if(this.myKeys.keydown["0"] || this.myKeys.keydown["l"]) this.p2.interactBool = true;
         else  this.p2.interactBool = false;
     },
     
-    /// summary
-    /// checks score of palyers and sees if there is a winner
-    /// summary
+    // checks score of palyers and sees if there is a winner
     checkScore: function(dt){
         // score logic for both players
         if(this.p1.ballState === this.PLAYER_BALL_STATE.ONBALL && this.p1.x > this.canvas.width/2) this.p1.score += dt;
@@ -591,64 +597,56 @@ app.main = {
         if(this.winner != undefined) this.gameState = this.GAME_STATE.END; // once we have a winner, change gameState to GAME OVER STATE
     },
     
-    /// summary
-    /// checks collision b/w player1 (A) and player2 (B) (AABB V AABB)
-    /// summary
+    // checks collision b/w player1 (A) and player2 (B) (AABB V AABB)
     checkCollisionPlayerVPlayer: function(playerA, playerB){
-        var minXA = playerA.x;
-        var maxXA = playerA.x + playerA.w;
-        var minYA = playerA.y;
-        var maxYA = playerA.y + playerA.h;
-        var minXB = playerB.x;
-        var maxXB = playerB.x + playerB.w;
-        var minYB = playerB.y;
-        var maxYB = playerB.y + playerB.h;
+        let minXA = playerA.x;
+        let maxXA = playerA.x + playerA.w;
+        let minYA = playerA.y;
+        let maxYA = playerA.y + playerA.h;
+        let minXB = playerB.x;
+        let maxXB = playerB.x + playerB.w;
+        let minYB = playerB.y;
+        let maxYB = playerB.y + playerB.h;
         
         if(minXB < maxXA && maxXB > minXA && minYB < maxYA && maxYB > minYA) return true;
         else return false;
     },
     
-    /// summary
-    /// checks collision b/w player and ball (AABB V SPHERE)
-    /// summary
+    // checks collision b/w player and ball (AABB V SPHERE)
     checkCollisionPlayerVBall: function(player, ball){ 
-        var minX = player.x;
-        var maxX = player.x + player.w;
-        var minY = player.y;
-        var maxY = player.y + player.h;
+        let minX = player.x;
+        let maxX = player.x + player.w;
+        let minY = player.y;
+        let maxY = player.y + player.h;
         
-        var x = clamp(maxX, minX, ball.x);
-        var y = clamp(maxY, minY, ball.y);
+        let x = clamp(maxX, minX, ball.x);
+        let y = clamp(maxY, minY, ball.y);
         
-        var dist = Math.sqrt((x - ball.x) * (x - ball.x) + (y - ball.y) * (y - ball.y));
+        let dist = Math.sqrt((x - ball.x) * (x - ball.x) + (y - ball.y) * (y - ball.y));
         
         if(dist < ball.r) return true;
         else return false;
     },
     
-    /// summary
-    /// checks collision b/w player and platforms (AABB V AABB)
-    /// summary
+    // checks collision b/w player and platforms (AABB V AABB)
     checkCollisionPlayerVPlatform: function(player, platform){
-        var minX = player.x;
-        var maxX = player.x + player.w;
-        var minY = player.y;
-        var maxY = player.y + player.h;
+        let minX = player.x;
+        let maxX = player.x + player.w;
+        let minY = player.y;
+        let maxY = player.y + player.h;
         
-        var minXP = platform.x;
-        var maxXP = platform.x + platform.w;
-        var minYP = platform.y;
-        var maxYP = platform.y + (platform.h - 4);
+        let minXP = platform.x;
+        let maxXP = platform.x + platform.w;
+        let minYP = platform.y;
+        let maxYP = platform.y + (platform.h - 4);
             
        if(minXP < maxX && maxXP > minX && minYP < maxY && maxYP > minY) return true;
        else return false;
     },
     
-    /// summary
-    /// calls checkCollisionPlayerVPlatform for each platform
-    /// summary
+    // calls checkCollisionPlayerVPlatform for each platform
     checkPlatformCollisions: function(player){
-        for(var i = 0; i < this.platforms.length; i++){
+        for(let i = 0; i < this.platforms.length; i++){
             if(player.playerState !== this.PLAYER_STATE.JUMPING){
                 if(this.checkCollisionPlayerVPlatform(player, this.platforms[i])){ 
                     player.y = this.platforms[i].y - player.h+1; // grounded on platform
@@ -661,34 +659,31 @@ app.main = {
         }
     },
     
-    /// summary
-    /// check screen boundaries and respawns players if they "fall off" screen
-    /// summary
+    // check screen boundaries and respawns players if they "fall off" screen
     checkBoundaries: function(player){
         player.x = clamp(player.x, 0, this.canvas.width - player.w); // sides of screen
         if(player.y < 0) player.y = 0; // top of  screen
-        if(player.y > this.canvas.height) player.spawn(player.spawnX, player.spawnY, this.PLAYER_DIRECTION_STATE.IDLE, this.PLAYER_STATE.GROUNDED, this.PLAYER_BALL_STATE.DEFAULT); // respawns player when they fall off level
+
+        // respawns player when they fall off level
+        if(player.y > this.canvas.height) 
+            player.spawn(player.spawnX, player.spawnY, this.PLAYER_DIRECTION_STATE.IDLE, 
+                        this.PLAYER_STATE.GROUNDED, this.PLAYER_BALL_STATE.DEFAULT); 
+                        
     },
     
-    /// summary
-    /// stops the background audio
-    /// summary
+    // stops the background audio
     stopBGAudio: function(){
         this.bgAudio.pause();
         //this.bgAudio.currentTime = 0; // restarts the song
     },
     
-    /// summary
-    /// plays sound effects for punching and ball
-    /// summary
+    // plays sound effects for punching and ball
     playEffect: function(fileIndex){
         if(fileIndex == 1) this.punchAudio.play();
         else if(fileIndex == 2) this.ballAudio.play();
     },
     
-    /// summary
-    /// pauses the game
-    /// summary
+    // pauses the game
     pauseGame: function(){
         this.stopBGAudio();
         this.currentState = this.gameState;
@@ -697,9 +692,7 @@ app.main = {
         this.update();
     },
     
-    /// summary
-    /// resumes the game
-    /// summary
+    // resumes the game
     resumeGame: function(){
         this.gameState = this.currentState;
         if(this.gameState == this.GAME_STATE.DEFAULT) this.bgAudio.play();
@@ -707,9 +700,7 @@ app.main = {
         this.update();
     },
     
-    /// summary
-    /// resets the game
-    /// summary
+    // resets the game
     resetGame: function(){
         // reset game variables
         this.gameState = this.GAME_STATE.BEGIN; 
@@ -722,6 +713,7 @@ app.main = {
         this.p1.score = 0;
         this.p2.score = 0;
         
-        this.ball.spawn(this.canvas.width/2, this.canvas.height/2 + 40); // spawn ball
+        // spawn ball
+        this.ball.spawn(this.canvas.width/2, this.canvas.height/2 + 40); 
     }
 };

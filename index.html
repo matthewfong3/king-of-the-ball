@@ -12,67 +12,32 @@
     <div id="instructions">
         <h1>HOW TO PLAY:</h1>
         <p>
-            Player 1 (RED) and Player 2 (BLUE) pits against each other in a game mode similar to that of <em>King of the Hill</em>. The objective is to hold the ball and stay within your color region for as long as possible to gain points. The player with the most points after the round time expires, wins!
-        </p>
+            Player 1 (RED) and Player 2 (BLUE) pits against each other in a game mode similar to that of 
+            <em>King of the Hill</em>. The objective is to hold the ball and stay within your color region 
+            for as long as possible to gain points. The player with the most points after the round time expires, wins!
         </p>
     </div>
     <section id="audioControls">
         <audio id="bgAudio" src="sounds/SpaceJam.mp3" controls loop></audio>
-        <audio id="punchAudio" src="sounds/punch.mp3">
-        </audio>
+        <audio id="punchAudio" src="sounds/punch.mp3"></audio>
         <audio id="ballAudio" src="sounds/pop.mp3"></audio>
     </section>
     <div id="buttons">
-        <img id="start" src="images/startDEFAULT.png" alt="startButton" onmouseover="changeTo(this.id);" onmouseout="changeBack(this.id);"/>
-        <img id="controls" src="images/controlsDEFAULT.png" alt="controlsButton" onmouseover="changeTo(this.id);" onmouseout="changeBack(this.id);"/>
-        <img id="restart" src="images/playagainDEFAULT.png" alt="playagainButton" onmouseover="changeTo(this.id);" onmouseout="changeBack(this.id);"/>
+        <img id="start" src="images/startDEFAULT.png" alt="startButton"/>
+        <img id="controls" src="images/controlsDEFAULT.png" alt="controlsButton"/>
+        <img id="restart" src="images/playagainDEFAULT.png" alt="playagainButton"/>
     </div>
     <div id="levels">
-        <img id="lvl1" src="images/level1DEFAULT.png" alt="level1" onmouseover="changeTo(this.id);" onmouseout="changeBack(this.id);"/>
-        <img id="lvl2" src="images/level2DEFAULT.png" alt="level1" onmouseover="changeTo(this.id);" onmouseout="changeBack(this.id);"/>
-        <img id="lvl3" src="images/level3DEFAULT.png" alt="level1" onmouseover="changeTo(this.id);" onmouseout="changeBack(this.id);"/>
+        <img id="lvl1" src="images/level1DEFAULT.png" alt="level1"/>
+        <img id="lvl2" src="images/level2DEFAULT.png" alt="level2"/>
+        <img id="lvl3" src="images/level3DEFAULT.png" alt="level3"/>
     </div>
     <script src="js/utilities.js"></script>
+    <script src="js/ui.js"></script>
     <script src="js/loader.js"></script>
     <script src="js/main.js"></script>
     <script src="js/keys.js"></script>
     <script src="js/emitter.js"></script>
     <script src="js/images.js"></script>
-    <script>
-	   function changeTo(id){
-	   	   if(id=="start"){
-	   	   	   document.querySelector("#start").src = "images/startHOVER.png";
-               document.querySelector("#start").style.cursor = "pointer";
-           }
-           if(id=="controls"){
-	   	   	   document.querySelector("#controls").src = "images/controlsHOVER.png";
-               document.querySelector("#controls").style.cursor = "pointer";
-           }
-           if(id=="restart"){
-	   	   	   document.querySelector("#restart").src = "images/playagainHOVER.png";
-               document.querySelector("#restart").style.cursor = "pointer";
-           }
-           if(id=="lvl1"){
-	   	   	   document.querySelector("#lvl1").src = "images/level1HOVER.png";
-               document.querySelector("#lvl1").style.cursor = "pointer";
-           }
-           if(id=="lvl2"){
-	   	   	   document.querySelector("#lvl2").src = "images/level2HOVER.png";
-               document.querySelector("#lvl2").style.cursor = "pointer";
-           }
-           if(id=="lvl3"){
-	   	   	   document.querySelector("#lvl3").src = "images/level3HOVER.png";
-               document.querySelector("#lvl3").style.cursor = "pointer";
-           }
-	   }
-	   function changeBack(id){
-	   	   if(id=="start") document.querySelector("#start").src = "images/startDEFAULT.png";
-           if(id=="controls") document.querySelector("#controls").src = "images/controlsDEFAULT.png";
-           if(id=="restart") document.querySelector("#restart").src = "images/playagainDEFAULT.png";
-           if(id=="lvl1") document.querySelector("#lvl1").src = "images/level1DEFAULT.png";
-           if(id=="lvl2") document.querySelector("#lvl2").src = "images/level2DEFAULT.png";
-           if(id=="lvl3") document.querySelector("#lvl3").src = "images/level3DEFAULT.png";
-	   }
-    </script>
 </body>
 </html>
